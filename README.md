@@ -10,7 +10,8 @@ Static site for Aide, a trading name of TAG Sleaford Ltd (company number 1287032
 ## Files
 - index.html: home page, price list and enquiry form
 - directory.html: Lincolnshire Directory (listing data is the `LISTINGS` block in its script)
-- privacy.html, terms.html: drafts dated 2 October 2026; adviser-review placeholders in square brackets remain
+- about.html: About us page (company details, directory info)
+- privacy.html, terms.html: suggested text dated 2 October 2026, no placeholders left; have them reviewed by an adviser before launch. Check the automated-tools wording, retention (6 years / 90 days) and 24-hour delivery match reality.
 
 ## Before it goes live
 - Enquiry form: posts to Web3Forms (key in `WEB3FORMS_KEY`, near the bottom of index.html), delivering to the TAG Sleaford inbox. For a dedicated Aide inbox, create a Web3Forms key for aide@tagsleaford.com and replace the key.

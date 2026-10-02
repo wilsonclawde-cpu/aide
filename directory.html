@@ -101,6 +101,9 @@
   footer.site a{color:#e3ebf1}
   footer .cols{display:grid;grid-template-columns:1.4fr 1fr;gap:2rem}
   footer p{margin:0 0 .5rem}
+  footer.site .slim{display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;align-items:center}
+  footer.site .slim p{margin:0}
+  footer.site .slim .sp{flex:1 1 auto}
 
   @media (max-width:860px){
     .stage{grid-template-columns:1fr}
@@ -125,6 +128,7 @@
     <nav class="main" aria-label="Main">
       <a href="index.html#reports">Business reports</a>
       <a href="index.html#jobs">Bigger jobs</a>
+      <a href="about.html">About</a>
       <a href="directory.html" aria-current="page"><strong>Directory</strong></a>
       <a class="btn small" href="#list-yours" data-mail="list">List your business</a>
     </nav>
@@ -183,19 +187,17 @@
 </main>
 
 <footer class="site">
-  <div class="wrap cols">
-    <div>
+  <div class="wrap">
+    <div class="slim">
       <p><strong style="color:#fff">Aide by TAG Sleaford</strong></p>
-      <p>Aide is a trading name of TAG Sleaford Ltd, registered in England and Wales, company number 12870323.</p>
-      <p>Registered office: Building 15 Gateway 1000, Whittle Way, Arlington Business Park, Stevenage, Hertfordshire, SG1 2FP.</p>
-      <p>Trading address: Kesteven Business Centre, Kesteven Street, Sleaford, Lincolnshire NG34 7DT. Phone: 01522 424963</p>
-      <p>Listing details come from Food Standards Agency data (Open Government Licence v3.0) and OpenStreetMap contributors. Unclaimed listings may be out of date.</p>
-    </div>
-    <div>
-      <p>Email: <a href="#" data-mail="hello" id="footer-email">aide@tagsleaford.com</a></p>
-      <p><a href="privacy.html">Privacy notice</a> &middot; <a href="terms.html">Terms of sale</a></p>
+      <p><a href="about.html">About us</a></p>
+      <p><a href="index.html">Aide home</a></p>
+      <p><a href="privacy.html">Privacy notice</a></p>
+      <p><a href="terms.html">Terms of sale</a></p>
+      <p class="sp"></p>
       <p>&copy; <span id="yr">2026</span> TAG Sleaford Ltd</p>
     </div>
+    <p style="margin-top:.9rem">Listing details come from Food Standards Agency data (Open Government Licence v3.0) and OpenStreetMap contributors. Unclaimed listings may be out of date.</p>
   </div>
 </footer>
 
@@ -595,7 +597,7 @@
   Array.prototype.slice.call(document.querySelectorAll("[data-mail]")).forEach(function (a) {
     a.href = mailto(a.getAttribute("data-mail"));
   });
-  document.getElementById("footer-email").textContent = CONTACT_EMAIL;
+  var fem = document.getElementById("footer-email"); if (fem) fem.textContent = CONTACT_EMAIL;
   document.getElementById("yr").textContent = new Date().getFullYear();
 
   // allow ?q=chinese&town=grantham deep links (handy for outreach)
