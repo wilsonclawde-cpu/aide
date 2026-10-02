@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aide by TAG Sleaford | Reports and extra hands for local businesses</title>
+<meta name="description" content="Aide checks your website, listings and competitors and sends a plain-English report with the fixes that matter. From £4.99. Based in Sleaford, Lincolnshire.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231D3B53'/%3E%3Cpath d='M18 46 32 16l14 30m-22-9h16' fill='none' stroke='%23F2B705' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<!--
+  SETUP NOTES (delete before launch)
+  1. Replace the [BRACKETED] placeholders in the footer, privacy.html and terms.html.
+  2. Paste Stripe Payment Link URLs into STRIPE_LINKS in the script at the bottom.
+     Until a link is set, the Order buttons take the visitor to the enquiry form.
+  3. Check CONTACT_EMAIL (bottom script) matches the live mailbox. FORM_ENDPOINT is empty,
+     so the form opens the visitor's email app addressed to that mailbox.
+-->
+<style>
+  :root{
+    --sky:#F4F7F9;
+    --paper:#FFFFFF;
+    --ink:#13202B;
+    --muted:#51616E;
+    --fen:#1D3B53;
+    --fen-deep:#122A3D;
+    --rape:#F2B705;
+    --field:#2F6B4F;
+    --line:#D3DDE4;
+    --radius:10px;
+    --maxw:1120px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    font-size:1.0625rem;
+    line-height:1.6;
+    color:var(--ink);
+    background:var(--sky);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;
+    line-height:1.08;
+    letter-spacing:-0.02em;
+    margin:0;
+    color:var(--fen-deep);
+  }
+  h1{font-size:clamp(2.4rem,6vw,4.1rem);font-weight:800}
+  h2{font-size:clamp(1.7rem,3.6vw,2.4rem);font-weight:700}
+  h3{font-size:1.2rem;font-weight:700;letter-spacing:-0.01em}
+  p{margin:0 0 1em}
+  a{color:var(--fen);text-underline-offset:3px}
+  a:hover{color:var(--field)}
+  :focus-visible{outline:3px solid var(--rape);outline-offset:3px;border-radius:4px}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 1.25rem}
+  .skip{position:absolute;left:-999px;top:0;background:var(--rape);color:var(--ink);padding:.6rem 1rem;z-index:20}
+  .skip:focus{left:0}
+
+  /* header */
+  header.site{background:var(--paper);border-bottom:1px solid var(--line)}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 0}
+  .logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--fen-deep)}
+  .logo svg{width:34px;height:34px;flex:none}
+  .logo b{font-family:"Bricolage Grotesque",sans-serif;font-size:1.45rem;letter-spacing:-0.02em}
+  .logo span{font-size:.85rem;color:var(--muted);border-left:1px solid var(--line);padding-left:.6rem;line-height:1.2}
+  nav.main{display:flex;gap:1.4rem;align-items:center;font-weight:500;font-size:.97rem}
+  nav.main a{text-decoration:none;color:var(--ink)}
+  nav.main a:hover{text-decoration:underline}
+
+  /* buttons */
+  .btn{
+    display:inline-block;
+    font:600 1rem "Instrument Sans",sans-serif;
+    padding:.85rem 1.35rem;
+    border-radius:var(--radius);
+    text-decoration:none;
+    border:2px solid var(--fen-deep);
+    background:var(--rape);
+    color:var(--ink);
+    cursor:pointer;
+    transition:transform .12s ease, background .12s ease;
+  }
+  .btn:hover{background:#ffc928;color:var(--ink);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;color:var(--fen-deep)}
+  .btn.ghost:hover{background:var(--fen-deep);color:#fff}
+  .btn.small{padding:.5rem .95rem;font-size:.93rem}
+
+  /* hero */
+  .hero{padding:3.2rem 0 3.6rem}
+  .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:3rem;align-items:center}
+  .hero p.lead{font-size:1.2rem;max-width:34rem;margin:1.2rem 0 1.8rem;color:#2c3c49}
+  .hero .actions{display:flex;flex-wrap:wrap;gap:.8rem}
+  .hero .fine{margin-top:1.3rem;font-size:.93rem;color:var(--muted)}
+
+  /* sample report: the one memorable element */
+  .report{
+    background:var(--paper);
+    border:2px solid var(--fen-deep);
+    border-radius:14px;
+    padding:1.4rem 1.4rem 1.2rem;
+    box-shadow:8px 8px 0 var(--rape);
+    position:relative;
+  }
+  .report .tag{
+    position:absolute;top:-.85rem;left:1.2rem;
+    background:var(--fen-deep);color:#fff;
+    font-size:.82rem;font-weight:600;padding:.2rem .7rem;border-radius:99px;
+  }
+  .report-head{display:flex;gap:1.1rem;align-items:center;padding-bottom:1rem;border-bottom:1px solid var(--line)}
+  .dial{width:92px;height:92px;flex:none;position:relative}
+  .dial svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .dial .track{fill:none;stroke:var(--line);stroke-width:10}
+  .dial .val{fill:none;stroke:var(--rape);stroke-width:10;stroke-linecap:round;stroke-dasharray:264;stroke-dashoffset:264;animation:fill 1.4s .3s cubic-bezier(.2,.7,.2,1) forwards}
+  .dial b{position:absolute;inset:0;display:grid;place-items:center;font:800 1.6rem "Bricolage Grotesque",sans-serif;color:var(--fen-deep)}
+  @keyframes fill{to{stroke-dashoffset:164}}
+  .report-head h3{font-size:1.1rem}
+  .report-head small{color:var(--muted);display:block;margin-top:.15rem}
+  .findings{list-style:none;margin:1rem 0 0;padding:0;display:grid;gap:.8rem}
+  .findings li{display:grid;grid-template-columns:auto 1fr;gap:.7rem;font-size:.97rem;line-height:1.4}
+  .findings .sev{width:10px;height:10px;border-radius:50%;margin-top:.4rem;background:#C2410C}
+  .findings .sev.mid{background:var(--rape)}
+  .findings em{display:block;font-style:normal;color:var(--muted);font-size:.86rem;margin-top:.1rem}
+  .locked{margin-top:1rem;padding:.7rem .9rem;border-radius:8px;background:var(--sky);font-size:.9rem;color:var(--muted);border:1px dashed var(--line)}
+
+  /* sections */
+  section{padding:3.6rem 0}
+  section.alt{background:var(--paper);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .sec-head{max-width:40rem;margin-bottom:2rem}
+  .sec-head p{color:var(--muted);margin-top:.8rem;font-size:1.08rem}
+
+  /* steps: a real sequence, so numbered */
+  .steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:1.4rem;counter-reset:step}
+  .steps li{counter-increment:step;border-top:4px solid var(--fen-deep);padding-top:1rem}
+  .steps li::before{content:counter(step);display:block;font:800 2.2rem "Bricolage Grotesque",sans-serif;color:var(--rape);-webkit-text-stroke:1.5px var(--fen-deep);line-height:1;margin-bottom:.5rem}
+  .steps h3{margin-bottom:.4rem;font-size:1.1rem}
+  .steps p{font-size:.97rem;color:var(--muted);margin:0}
+
+  /* price rows */
+  .rows{border-top:2px solid var(--fen-deep)}
+  .row{display:grid;grid-template-columns:1fr auto auto;gap:1.2rem;align-items:center;padding:1.1rem 0;border-bottom:1px solid var(--line)}
+  .row h3{font-size:1.12rem}
+  .row p{margin:.2rem 0 0;color:var(--muted);font-size:.97rem;max-width:36rem}
+  .price{font:800 1.5rem "Bricolage Grotesque",sans-serif;color:var(--fen-deep);white-space:nowrap}
+  .price small{font:500 .8rem "Instrument Sans",sans-serif;color:var(--muted);margin-right:.2rem}
+  .note{margin-top:1.1rem;font-size:.93rem;color:var(--muted);max-width:44rem}
+
+  /* two-column lists */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:3rem}
+  .plain{list-style:none;margin:0;padding:0}
+  .plain li{padding:.85rem 0;border-bottom:1px solid var(--line)}
+  .plain li strong{display:block;color:var(--fen-deep)}
+  .plain li span{color:var(--muted);font-size:.97rem}
+
+  /* trust band */
+  .band{background:var(--fen-deep);color:#e6eef4}
+  .band h2{color:#fff}
+  .band a{color:var(--rape)}
+  .band .cols{display:grid;grid-template-columns:1.2fr 1fr;gap:3rem;align-items:start}
+  .band ul{margin:0;padding-left:1.1rem}
+  .band li{margin-bottom:.6rem}
+
+  /* enquiry form */
+  .enq{display:grid;grid-template-columns:1fr 1.2fr;gap:3rem;align-items:start}
+  form.enquiry{display:grid;gap:1rem;background:var(--paper);border:2px solid var(--fen-deep);border-radius:14px;padding:1.4rem;box-shadow:8px 8px 0 var(--rape)}
+  form.enquiry label{display:grid;gap:.3rem;font-weight:600;font-size:.95rem;color:var(--fen-deep)}
+  form.enquiry label span.opt{font-weight:400;color:var(--muted)}
+  form.enquiry input,form.enquiry select,form.enquiry textarea{font:400 1rem "Instrument Sans",sans-serif;padding:.7rem .8rem;border:1.5px solid #9aa9b5;border-radius:8px;background:#fff;color:var(--ink);width:100%}
+  form.enquiry textarea{min-height:110px;resize:vertical}
+  form.enquiry .two{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  form.enquiry .check{display:flex;gap:.6rem;align-items:flex-start;font-weight:400;font-size:.92rem;color:var(--ink)}
+  form.enquiry .check input{width:auto;margin-top:.3rem}
+  .hp{position:absolute;left:-9999px;height:0;overflow:hidden}
+  .msg{padding:.8rem 1rem;border-radius:8px;font-size:.97rem;display:none}
+  .msg.ok{display:block;background:#e6f1ea;color:#1f4d37;border:1px solid #b9d8c6}
+  .msg.err{display:block;background:#fdece8;color:#7a2a12;border:1px solid #f1c3b6}
+  form.enquiry button[disabled]{opacity:.6;cursor:wait}
+  footer.site{background:var(--ink);color:#b6c3ce;padding:2.4rem 0;font-size:.93rem}
+  footer.site a{color:#e3ebf1}
+  footer .cols{display:grid;grid-template-columns:1.4fr 1fr;gap:2rem}
+  footer p{margin:0 0 .5rem}
+
+  @media (max-width:860px){
+    .hero-grid,.split,.band .cols,footer .cols,.enq{grid-template-columns:1fr}
+    form.enquiry .two{grid-template-columns:1fr}
+    .steps{grid-template-columns:1fr 1fr}
+    nav.main a:not(.btn){display:none}
+    .logo span{display:none}
+  }
+  @media (max-width:560px){
+    .steps{grid-template-columns:1fr}
+    .row{grid-template-columns:1fr auto}
+    .row .btn{grid-column:1 / -1;text-align:center}
+    .hero{padding-top:2rem}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .dial .val{animation:none;stroke-dashoffset:164}
+    .btn{transition:none}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site">
+  <div class="wrap bar">
+    <a class="logo" href="index.html" aria-label="Aide by TAG Sleaford, home">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#1D3B53"/><path d="M18 46 32 16l14 30m-22-9h16" fill="none" stroke="#F2B705" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <b>Aide</b><span>by TAG Sleaford</span>
+    </a>
+    <nav class="main" aria-label="Main">
+      <a href="#reports">Business reports</a>
+      <a href="#jobs">Bigger jobs</a>
+      <a href="#personal">For you</a>
+      <a href="directory.html">Directory</a>
+      <a class="btn small" href="#reports">Get a report</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero" style="padding-top:3.2rem">
+    <div class="wrap hero-grid">
+      <div>
+        <h1>See what's costing your business customers.</h1>
+        <p class="lead">Aide checks your website, your online listings and the businesses down the road, then sends a plain-English report with the fixes that matter. No meeting, no jargon.</p>
+        <div class="actions">
+          <a class="btn" href="#reports">Get your report from £4.99</a>
+          <a class="btn ghost" href="#how">How it works</a>
+        </div>
+        <p class="fine">Bringing our online success to your business.</p>
+      </div>
+
+      <aside class="report" aria-label="Example report">
+        <span class="tag">Example report, fictional business</span>
+        <div class="report-head">
+          <div class="dial" role="img" aria-label="Score 38 out of 100">
+            <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="42"/><circle class="val" cx="50" cy="50" r="42"/></svg>
+            <b>38</b>
+          </div>
+          <div>
+            <h3>Website audit: Example Takeaway</h3>
+            <small>Score out of 100, checked live on the day</small>
+          </div>
+        </div>
+        <ul class="findings">
+          <li><i class="sev"></i><div>No order button on the homepage<em>Customers have to phone, or go to a marketplace that takes a cut.</em></div></li>
+          <li><i class="sev"></i><div>Page takes over 6 seconds to load on mobile<em>Most people leave before it finishes.</em></div></li>
+          <li><i class="sev mid"></i><div>Opening hours differ between site and listing<em>Easy to fix, and it stops missed visits.</em></div></li>
+        </ul>
+        <div class="locked">Fixes 4 and 5 are in the full report, each with a price to sort it for you.</div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="how" class="alt">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>How it works</h2>
+        <p>Every finding in a report comes from something we checked, with the date. Nothing is guessed.</p>
+      </div>
+      <ol class="steps">
+        <li><h3>Pick a report</h3><p>Choose from the list below. Prices are fixed and shown up front.</p></li>
+        <li><h3>Tell us who you are</h3><p>Your business name and website address is all we need to start.</p></li>
+        <li><h3>We check and write it</h3><p>We look at your live site, listings and nearby competitors, then write up what we found.</p></li>
+        <li><h3>You decide what next</h3><p>Fix things yourself, or ask us for a quote. No pressure and no follow-up calls you didn't ask for.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="reports">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Reports for businesses</h2>
+        <p>Written for your business, not copied from a template. Each one ends with clear next steps.</p>
+      </div>
+      <div class="rows">
+        <div class="row">
+          <div><h3>How AI can help your business</h3><p>Five specific ways AI tools could save you time, based on your own site, menu or services. Each comes with an estimate and the assumption behind it.</p></div>
+          <div class="price">£4.99</div>
+          <a class="btn small" href="#" data-order="ai-report">Order</a>
+        </div>
+        <div class="row">
+          <div><h3>Website audit</h3><p>Speed on mobile, broken links, whether customers can order or book, and the top five fixes in priority order.</p></div>
+          <div class="price">£9.99</div>
+          <a class="btn small" href="#" data-order="website-audit">Order</a>
+        </div>
+        <div class="row">
+          <div><h3>Google listing health check</h3><p>Photos, opening hours, categories and how often you reply to reviews, scored with the top five fixes.</p></div>
+          <div class="price">£9.99</div>
+          <a class="btn small" href="#" data-order="listing-check">Order</a>
+        </div>
+        <div class="row">
+          <div><h3>Competitor snapshot</h3><p>Your three nearest rivals side by side: what they offer, how customers can order or book, and three gaps you can close.</p></div>
+          <div class="price">£9.99</div>
+          <a class="btn small" href="#" data-order="competitor-snapshot">Order</a>
+        </div>
+        <div class="row">
+          <div><h3>Review reply pack</h3><p>Ten drafted replies to your latest reviews, ready to paste. You send us the reviews, we write the replies.</p></div>
+          <div class="price">£9.99</div>
+          <a class="btn small" href="#" data-order="review-replies">Order</a>
+        </div>
+        <div class="row">
+          <div><h3>Month of posts</h3><p>Twelve social media captions and a posting calendar for your business.</p></div>
+          <div class="price">£7.99</div>
+          <a class="btn small" href="#" data-order="month-of-posts">Order</a>
+        </div>
+      </div>
+      <p class="note">Reports are digital and delivered by email. Estimates, such as time saved, are always labelled as estimates with the assumption shown.</p>
+    </div>
+  </section>
+
+  <section id="jobs" class="alt">
+    <div class="wrap split">
+      <div>
+        <h2>Bigger jobs, done for you</h2>
+        <p style="margin-top:.8rem;color:var(--muted);font-size:1.08rem">If a report shows something worth fixing, we can do it. Every job is quoted in writing first.</p>
+        <p><a class="btn" href="#" data-order="quote">Ask for a quote</a></p>
+      </div>
+      <ul class="plain">
+        <li><strong>Takeaway ordering sites</strong><span>Your own menu, orders and card payments, so you stop paying marketplace commission.</span></li>
+        <li><strong>Pub and restaurant sites</strong><span>Table bookings, menus, events and a mailing list.</span></li>
+        <li><strong>Salon, barber and trades booking sites</strong><span>An online diary, deposits to cut no-shows and reminders.</span></li>
+        <li><strong>Google listing and local search fixes</strong><span>Correct details, better photos and replies to reviews.</span></li>
+        <li><strong>Menus, flyers and posters</strong><span>Designed for print and for screens.</span></li>
+        <li><strong>Done-for-you social media</strong><span>A month of posts planned and written for you.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="personal">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Help for you personally</h2>
+        <p>The same fast, fixed-price approach for everyday jobs. These are drafts and guides, not legal, medical or financial advice.</p>
+      </div>
+      <div class="rows">
+        <div class="row">
+          <div><h3>CV and cover letter rewrite</h3><p>Send us your current CV and the job you want. We send back a sharper CV and a matching cover letter.</p></div>
+          <div class="price"><small>from</small>£9.99</div>
+          <a class="btn small" href="#" data-order="cv">Order</a>
+        </div>
+        <div class="row">
+          <div><h3>eBay and Vinted listing writer</h3><p>A clear title, description and keywords for your item, written from your photos.</p></div>
+          <div class="price">£4.99</div>
+          <a class="btn small" href="#" data-order="listing-writer">Order</a>
+        </div>
+        <div class="row">
+          <div><h3>Complaint and refund letter</h3><p>A firm, polite letter for faulty goods, poor service or a delayed trip. A drafted letter, not legal advice.</p></div>
+          <div class="price">£7.99</div>
+          <a class="btn small" href="#" data-order="complaint-letter">Order</a>
+        </div>
+        <div class="row">
+          <div><h3>Party and event invitations</h3><p>Birthdays, christenings, leaving dos. Designed to share on your phone or print.</p></div>
+          <div class="price">£7.99</div>
+          <a class="btn small" href="#" data-order="invitations">Order</a>
+        </div>
+        <div class="row">
+          <div><h3>Speeches</h3><p>Best man, wedding, retirement. Written around the real stories you give us.</p></div>
+          <div class="price"><small>from</small>£14.99</div>
+          <a class="btn small" href="#" data-order="speech">Order</a>
+        </div>
+        <div class="row">
+          <div><h3>Personalised bedtime story</h3><p>A short story starring your child, by name. A good gift.</p></div>
+          <div class="price">£7.99</div>
+          <a class="btn small" href="#" data-order="bedtime-story">Order</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="about">
+    <div class="wrap cols">
+      <div>
+        <h2>Local, and easy to reach</h2>
+        <p style="margin-top:1rem;max-width:34rem">Aide is how TAG shares what works. We sell to customers across Europe ourselves, so we know what a quiet week costs and what actually brings customers in.</p>
+        <p><a href="#enquire">Send us a message</a> and a real person will reply.</p>
+      </div>
+      <ul>
+        <li>Fixed prices shown before you buy.</li>
+        <li>Every finding comes from something we checked, with the date.</li>
+        <li>We only contact businesses by routes the law allows, and stop when asked.</li>
+        <li>Your details are used to produce your report and nothing else. See our <a href="privacy.html">privacy notice</a>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="enquire" class="alt">
+    <div class="wrap enq">
+      <div>
+        <h2>Tell us what you need</h2>
+        <p style="margin-top:.8rem;color:var(--muted);font-size:1.08rem">Order a report, ask for a quote, or list your business in the directory. Tell us what you need and we'll reply by email, usually within one working day.</p>
+        <p style="color:var(--muted);font-size:.97rem">Prefer to write? Email <a href="#" id="enq-email">aide@tagsleaford.com</a>. Prefer to phone? Call 01522 424963.</p>
+      </div>
+      <form class="enquiry" id="enqForm" novalidate>
+        <label>What do you need?
+          <select name="topic" id="topic" required>
+            <option value="">Choose one</option>
+            <optgroup label="Business reports">
+              <option value="ai-report">How AI can help your business (£4.99)</option>
+              <option value="website-audit">Website audit (£9.99)</option>
+              <option value="listing-check">Google listing health check (£9.99)</option>
+              <option value="competitor-snapshot">Competitor snapshot (£9.99)</option>
+              <option value="review-replies">Review reply pack (£9.99)</option>
+              <option value="month-of-posts">Month of posts (£7.99)</option>
+            </optgroup>
+            <optgroup label="For you personally">
+              <option value="cv">CV and cover letter rewrite (from £9.99)</option>
+              <option value="listing-writer">eBay and Vinted listing writer (£4.99)</option>
+              <option value="complaint-letter">Complaint and refund letter (£7.99)</option>
+              <option value="invitations">Party and event invitations (£7.99)</option>
+              <option value="speech">Speech (from £14.99)</option>
+              <option value="bedtime-story">Personalised bedtime story (£7.99)</option>
+            </optgroup>
+            <optgroup label="Other">
+              <option value="quote">A quote for a bigger job (website, booking, design)</option>
+              <option value="list">List or claim a directory listing</option>
+              <option value="remove">Remove a directory listing</option>
+              <option value="hello">Something else</option>
+            </optgroup>
+          </select>
+        </label>
+        <div class="two">
+          <label>Your name<input name="name" autocomplete="name" required maxlength="120"></label>
+          <label>Email<input name="email" type="email" autocomplete="email" required maxlength="200"></label>
+        </div>
+        <div class="two">
+          <label>Business name <span class="opt">(if any)</span><input name="business" autocomplete="organization" maxlength="160"></label>
+          <label>Phone <span class="opt">(optional)</span><input name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
+        </div>
+        <label>Website address <span class="opt">(if any)</span><input name="website" inputmode="url" maxlength="200" placeholder="www.example.co.uk"></label>
+        <label>Anything we should know <span class="opt">(optional)</span><textarea name="message" maxlength="4000"></textarea></label>
+        <div class="hp" aria-hidden="true"><label>Leave this empty<input name="company_site" tabindex="-1" autocomplete="off"></label></div>
+        <div id="turnstile"></div>
+        <label class="check"><input type="checkbox" name="consent" required> <span>I agree to TAG Sleaford Ltd using these details to reply to me, as set out in the <a href="privacy.html">privacy notice</a>.</span></label>
+        <button class="btn" type="submit" id="enqBtn">Send</button>
+        <div class="msg" id="enqMsg" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site">
+  <div class="wrap cols">
+    <div>
+      <p><strong style="color:#fff">Aide by TAG Sleaford</strong></p>
+      <p>Aide is a trading name of TAG Sleaford Ltd, registered in England and Wales, company number 12870323.</p>
+      <p>Registered office: Building 15 Gateway 1000, Whittle Way, Arlington Business Park, Stevenage, Hertfordshire, SG1 2FP.</p>
+      <p>Trading address: Kesteven Business Centre, Kesteven Street, Sleaford, Lincolnshire NG34 7DT. Phone: 01522 424963</p>
+    </div>
+    <div>
+      <p>Email: <a href="#" data-order="hello" id="footer-email">aide@tagsleaford.com</a></p>
+      <p><a href="privacy.html">Privacy notice</a> &middot; <a href="terms.html">Terms of sale</a></p>
+      <p>&copy; <span id="yr">2026</span> TAG Sleaford Ltd</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ---- EDIT THESE ----
+  // Public address shown on the site, and the address the form's email fallback is sent to.
+  const CONTACT_EMAIL = "aide@tagsleaford.com";
+
+  // Where the form posts. GitHub Pages can't run server code, so until you deploy the small
+  // form Worker (aide-form-worker.js) and paste its URL here, the form opens the visitor's email app
+  // with their details filled in and addressed to CONTACT_EMAIL.
+  const FORM_ENDPOINT = "";
+
+  // Optional: Cloudflare Turnstile site key (spam protection). Leave "" to skip.
+  const TURNSTILE_SITE_KEY = "";
+
+  // Paste each Stripe Payment Link here. Leave "" and the button takes the visitor to the enquiry form instead.
+  const STRIPE_LINKS = {
+    "ai-report": "",
+    "website-audit": "",
+    "listing-check": "",
+    "competitor-snapshot": "",
+    "review-replies": "",
+    "month-of-posts": "",
+    "cv": "",
+    "listing-writer": "",
+    "complaint-letter": "",
+    "invitations": "",
+    "speech": "",
+    "bedtime-story": ""
+  };
+  // ---------------------
+
+  var topic = document.getElementById("topic");
+  var form = document.getElementById("enqForm");
+  var msg = document.getElementById("enqMsg");
+  var btn = document.getElementById("enqBtn");
+
+  document.querySelectorAll("[data-order]").forEach(function (el) {
+    var key = el.getAttribute("data-order");
+    if (key === "hello") {
+      el.href = "mailto:" + CONTACT_EMAIL;
+      return;
+    }
+    var link = STRIPE_LINKS[key];
+    if (link) { el.href = link; el.rel = "noopener"; return; }
+    el.href = "#enquire";
+    el.addEventListener("click", function () {
+      if (topic) topic.value = key;
+    });
+  });
+
+  var fe = document.getElementById("footer-email");
+  if (fe) { fe.textContent = CONTACT_EMAIL; fe.href = "mailto:" + CONTACT_EMAIL; }
+  var ee = document.getElementById("enq-email");
+  if (ee) { ee.textContent = CONTACT_EMAIL; ee.href = "mailto:" + CONTACT_EMAIL; }
+  document.getElementById("yr").textContent = new Date().getFullYear();
+
+  // Deep links from the directory: index.html?topic=list&note=...#enquire
+  var params = new URLSearchParams(location.search);
+  if (params.get("topic") && topic) topic.value = params.get("topic");
+  if (params.get("note") && form) form.elements["message"].value = params.get("note");
+
+  // Turnstile
+  if (TURNSTILE_SITE_KEY) {
+    var s = document.createElement("script");
+    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    s.async = true; s.defer = true;
+    document.head.appendChild(s);
+    var box = document.getElementById("turnstile");
+    box.className = "cf-turnstile";
+    box.setAttribute("data-sitekey", TURNSTILE_SITE_KEY);
+  }
+
+  function show(kind, text) {
+    msg.className = "msg " + kind;
+    msg.textContent = text;
+  }
+
+  if (form) form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    msg.className = "msg";
+    var f = form.elements;
+    if (!f["topic"].value) { show("err", "Choose what you need first."); f["topic"].focus(); return; }
+    if (!f["name"].value.trim()) { show("err", "Please tell us your name."); f["name"].focus(); return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f["email"].value.trim())) { show("err", "That email address doesn't look right. Check it and try again."); f["email"].focus(); return; }
+    if (!f["consent"].checked) { show("err", "Please tick the box so we can reply to you."); return; }
+
+    var payload = {
+      topic: f["topic"].value,
+      name: f["name"].value,
+      email: f["email"].value,
+      business: f["business"].value,
+      phone: f["phone"].value,
+      website: f["website"].value,
+      message: f["message"].value,
+      consent: f["consent"].checked,
+      company_site: f["company_site"].value,
+      page: location.pathname
+    };
+    var tsField = form.querySelector('[name="cf-turnstile-response"]');
+    if (tsField) payload.turnstile = tsField.value;
+
+    if (!FORM_ENDPOINT) {
+      // No server available: open the visitor's email app with everything filled in.
+      var lines = [
+        "Topic: " + f["topic"].options[f["topic"].selectedIndex].text,
+        "Name: " + payload.name,
+        "Email: " + payload.email,
+        "Business: " + (payload.business || "-"),
+        "Phone: " + (payload.phone || "-"),
+        "Website: " + (payload.website || "-"),
+        "",
+        payload.message || ""
+      ].join("\n");
+      var href = "mailto:" + CONTACT_EMAIL + "?subject=" + encodeURIComponent("Aide enquiry: " + f["topic"].options[f["topic"].selectedIndex].text) + "&body=" + encodeURIComponent(lines);
+      show("ok", "Your email app should open with your request ready to send. If it doesn't, email " + CONTACT_EMAIL + " or call 01522 424963.");
+      window.location.href = href;
+      return;
+    }
+
+    btn.disabled = true; btn.textContent = "Sending...";
+    fetch(FORM_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+      .then(function (r) { return r.json().catch(function () { return { ok: false }; }).then(function (j) { return { status: r.status, body: j }; }); })
+      .then(function (res) {
+        if (res.body && res.body.ok) {
+          form.reset();
+          show("ok", "Thanks. We've got your request and will reply by email, usually within one working day.");
+        } else {
+          show("err", "That didn't send. Please email " + CONTACT_EMAIL + " or call 01522 424963 and we'll sort it.");
+        }
+      })
+      .catch(function () {
+        show("err", "That didn't send. Please email " + CONTACT_EMAIL + " or call 01522 424963 and we'll sort it.");
+      })
+      .then(function () { btn.disabled = false; btn.textContent = "Send"; });
+  });
+</script>
+</body>
+</html>

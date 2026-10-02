@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lincolnshire Directory | Aide by TAG Sleaford</title>
+<meta name="description" content="Find local businesses in Sleaford, Grantham, Boston and Lincoln. Search by what you need: a Chinese, a haircut, a plumber. Free to list.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231D3B53'/%3E%3Cpath d='M18 46 32 16l14 30m-22-9h16' fill='none' stroke='%23F2B705' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" crossorigin="">
+<style>
+  :root{
+    --sky:#F4F7F9;--paper:#FFFFFF;--ink:#13202B;--muted:#51616E;
+    --fen:#1D3B53;--fen-deep:#122A3D;--rape:#F2B705;--field:#2F6B4F;--line:#D3DDE4;--radius:10px;--maxw:1180px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:1.0625rem;line-height:1.55;color:var(--ink);background:var(--sky);-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;line-height:1.1;letter-spacing:-0.02em;margin:0;color:var(--fen-deep)}
+  h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800}
+  h2{font-size:1.3rem;font-weight:700}
+  h3{font-size:1.1rem;font-weight:700;letter-spacing:-0.01em}
+  p{margin:0 0 1em}
+  a{color:var(--fen);text-underline-offset:3px}
+  a:hover{color:var(--field)}
+  :focus-visible{outline:3px solid var(--rape);outline-offset:3px;border-radius:4px}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 1.25rem}
+  .skip{position:absolute;left:-999px;top:0;background:var(--rape);color:var(--ink);padding:.6rem 1rem;z-index:2000}
+  .skip:focus{left:0}
+
+  header.site{background:var(--paper);border-bottom:1px solid var(--line)}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 0}
+  .logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--fen-deep)}
+  .logo svg{width:34px;height:34px;flex:none}
+  .logo b{font-family:"Bricolage Grotesque",sans-serif;font-size:1.45rem;letter-spacing:-0.02em}
+  .logo span{font-size:.85rem;color:var(--muted);border-left:1px solid var(--line);padding-left:.6rem;line-height:1.2}
+  nav.main{display:flex;gap:1.4rem;align-items:center;font-weight:500;font-size:.97rem}
+  nav.main a{text-decoration:none;color:var(--ink)}
+  nav.main a:hover{text-decoration:underline}
+
+  .btn{display:inline-block;font:600 1rem "Instrument Sans",sans-serif;padding:.8rem 1.25rem;border-radius:var(--radius);text-decoration:none;border:2px solid var(--fen-deep);background:var(--rape);color:var(--ink);cursor:pointer;transition:transform .12s ease,background .12s ease}
+  .btn:hover{background:#ffc928;color:var(--ink);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;color:var(--fen-deep)}
+  .btn.ghost:hover{background:var(--fen-deep);color:#fff}
+  .btn.small{padding:.45rem .85rem;font-size:.92rem}
+
+  /* search block */
+  .find{padding:2.2rem 0 1.4rem}
+  .find p.lead{font-size:1.15rem;max-width:36rem;margin:.8rem 0 1.4rem;color:#2c3c49}
+  form.search{display:flex;gap:.6rem;flex-wrap:wrap}
+  form.search .field{flex:1 1 320px;position:relative}
+  form.search input{width:100%;font:500 1.15rem "Instrument Sans",sans-serif;padding:1rem 1.1rem;border:2px solid var(--fen-deep);border-radius:var(--radius);background:var(--paper);color:var(--ink)}
+  form.search input::placeholder{color:#7a8894}
+  .examples{margin:.7rem 0 0;font-size:.95rem;color:var(--muted)}
+  .examples button{font:inherit;color:var(--fen);background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+  .examples button:hover{color:var(--field)}
+
+  .controls{margin-top:1.4rem;display:grid;gap:.9rem}
+  .chiprow{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+  .chiprow .lab{font-weight:600;font-size:.93rem;color:var(--fen-deep);margin-right:.3rem}
+  .chip{font:500 .95rem "Instrument Sans",sans-serif;padding:.4rem .85rem;border-radius:99px;border:1.5px solid var(--fen-deep);background:var(--paper);color:var(--fen-deep);cursor:pointer}
+  .chip:hover{background:#e9f0f5}
+  .chip[aria-pressed="true"]{background:var(--fen-deep);color:#fff}
+  .chip.empty{border-style:dashed;color:var(--muted);border-color:#9aa9b5}
+  .chip.empty[aria-pressed="true"]{background:var(--muted);color:#fff;border-style:solid}
+  .chip small{font-weight:600;opacity:.75;margin-left:.2rem}
+
+  /* results + map */
+  .stage{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:1.4rem;padding-bottom:3rem;align-items:start}
+  .status{font-size:.97rem;color:var(--muted);margin:0 0 .7rem;min-height:1.5em}
+  .status strong{color:var(--fen-deep)}
+  .list{display:grid;gap:.8rem;max-height:620px;overflow:auto;padding-right:.2rem}
+  .item{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:1rem 1.05rem;cursor:pointer}
+  .item:hover{border-color:var(--fen)}
+  .item.active{border-color:var(--fen-deep);box-shadow:5px 5px 0 var(--rape)}
+  .item.rich{border-left:6px solid var(--rape)}
+  .item h3{margin-bottom:.15rem}
+  .meta{color:var(--muted);font-size:.93rem;margin:0 0 .5rem}
+  .item p{font-size:.95rem;margin:0 0 .3rem}
+  .badge{display:inline-block;font-size:.85rem;font-weight:600;padding:.12rem .55rem;border-radius:99px;background:#e6f1ea;color:#1f4d37;margin-right:.3rem}
+  .badge.dist{background:#fff3cc;color:#5c4400}
+  .actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem}
+  .unclaimed{font-size:.88rem;color:var(--muted)}
+  .empty-state{background:var(--paper);border:2px dashed var(--line);border-radius:12px;padding:1.3rem}
+  .empty-state h3{margin-bottom:.4rem}
+  .empty-state p{color:var(--muted)}
+
+  #map{height:620px;border:2px solid var(--fen-deep);border-radius:14px;overflow:hidden;position:sticky;top:1rem;background:#dde6ec}
+  .pin{width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--rape);border:3px solid var(--fen-deep);box-shadow:0 2px 0 rgba(0,0,0,.25)}
+  .pin.on{background:var(--fen-deep);border-color:var(--rape)}
+  .me{width:16px;height:16px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 0 0 2px #2563eb}
+
+  .invite{background:var(--fen-deep);color:#e6eef4;padding:2.6rem 0}
+  .invite h2{color:#fff;font-size:1.7rem}
+  .invite .cols{display:grid;grid-template-columns:1.2fr 1fr;gap:2.5rem;align-items:center}
+  .invite a{color:var(--rape)}
+  .invite .btn{color:var(--ink)}
+
+  footer.site{background:var(--ink);color:#b6c3ce;padding:2.2rem 0;font-size:.93rem}
+  footer.site a{color:#e3ebf1}
+  footer .cols{display:grid;grid-template-columns:1.4fr 1fr;gap:2rem}
+  footer p{margin:0 0 .5rem}
+
+  @media (max-width:860px){
+    .stage{grid-template-columns:1fr}
+    #map{height:320px;position:static;order:-1}
+    .list{max-height:none}
+    .invite .cols,footer .cols{grid-template-columns:1fr}
+    nav.main a:not(.btn){display:none}
+    .logo span{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){.btn{transition:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to results</a>
+
+<header class="site">
+  <div class="wrap bar">
+    <a class="logo" href="index.html" aria-label="Aide by TAG Sleaford, home">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#1D3B53"/><path d="M18 46 32 16l14 30m-22-9h16" fill="none" stroke="#F2B705" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <b>Aide</b><span>by TAG Sleaford</span>
+    </a>
+    <nav class="main" aria-label="Main">
+      <a href="index.html#reports">Business reports</a>
+      <a href="index.html#jobs">Bigger jobs</a>
+      <a href="directory.html" aria-current="page"><strong>Directory</strong></a>
+      <a class="btn small" href="#list-yours" data-mail="list">List your business</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="find">
+    <div class="wrap">
+      <h1>Lincolnshire Directory</h1>
+      <p class="lead">Tell us what you need and we'll show you who's nearby. Sleaford, Grantham, Boston and Lincoln.</p>
+
+      <form class="search" id="searchForm" role="search" autocomplete="off">
+        <div class="field">
+          <label for="q" class="visually" style="position:absolute;left:-999px">What do you need?</label>
+          <input id="q" name="q" type="search" placeholder="I want a Chinese, a haircut, a plumber..." enterkeyhint="search">
+        </div>
+        <button class="btn" type="submit">Search</button>
+        <button class="btn ghost" type="button" id="nearBtn">Find near me</button>
+      </form>
+      <p class="examples">Try:
+        <button type="button" data-ex="I want a Chinese">I want a Chinese</button>,
+        <button type="button" data-ex="I need a haircut in Grantham">I need a haircut in Grantham</button>,
+        <button type="button" data-ex="plumber near Boston">plumber near Boston</button>
+      </p>
+
+      <div class="controls">
+        <div class="chiprow" id="towns" role="group" aria-label="Town"><span class="lab">Town</span></div>
+        <div class="chiprow" id="cats" role="group" aria-label="Category"><span class="lab">Category</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap stage">
+      <div>
+        <p class="status" id="status" aria-live="polite"></p>
+        <div class="list" id="list"></div>
+      </div>
+      <div id="map" role="region" aria-label="Map of listings"></div>
+    </div>
+  </section>
+
+  <section class="invite" id="list-yours">
+    <div class="wrap cols">
+      <div>
+        <h2>Own a business in Lincolnshire? List it free.</h2>
+        <p style="margin-top:.8rem;max-width:34rem">Tell us your business name and we'll add your phone number, opening hours, menu or services. If we've already listed you from public records, claim it and take control of the details.</p>
+      </div>
+      <div>
+        <p><a class="btn" href="#" data-mail="list">Claim or add your listing</a></p>
+        <p style="font-size:.93rem">Want a listing taken down? <a href="#" data-mail="remove">Tell us</a> and we'll remove it.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap cols">
+    <div>
+      <p><strong style="color:#fff">Aide by TAG Sleaford</strong></p>
+      <p>Aide is a trading name of TAG Sleaford Ltd, registered in England and Wales, company number 12870323.</p>
+      <p>Registered office: Building 15 Gateway 1000, Whittle Way, Arlington Business Park, Stevenage, Hertfordshire, SG1 2FP.</p>
+      <p>Trading address: Kesteven Business Centre, Kesteven Street, Sleaford, Lincolnshire NG34 7DT. Phone: 01522 424963</p>
+      <p>Listing details come from Food Standards Agency data (Open Government Licence v3.0) and OpenStreetMap contributors. Unclaimed listings may be out of date.</p>
+    </div>
+    <div>
+      <p>Email: <a href="#" data-mail="hello" id="footer-email">aide@tagsleaford.com</a></p>
+      <p><a href="privacy.html">Privacy notice</a> &middot; <a href="terms.html">Terms of sale</a></p>
+      <p>&copy; <span id="yr">2026</span> TAG Sleaford Ltd</p>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" crossorigin=""></script>
+<script>
+(function () {
+  // ---- EDIT ----
+  var CONTACT_EMAIL = "aide@tagsleaford.com";
+
+  // Listings. Add new businesses here. Only include facts you have verified.
+  // cats: one or more category ids from CATS below. claimed: true hides the "unclaimed" note.
+  // fsa: Food Standards Agency hygiene rating (food businesses only), with inspection date.
+  // Optional profile fields: phone, hours, blurb, links [{label,url}].
+  // Pin position for GLOW and TAG comes from the geo tag on tagsleaford.com.
+  var LISTINGS = [
+    {
+      id: "jade-dragon-sleaford", name: "Jade Dragon", cats: ["food"],
+      tags: ["chinese", "restaurant"], town: "sleaford",
+      address: "6 Station Road, Sleaford", postcode: "NG34 7RG",
+      lat: 52.995722, lng: -0.411545,
+      fsa: { rating: 5, date: "2025-03-25" }
+    },
+    {
+      id: "ken-chinese-grantham", name: "Ken Chinese Restaurant", cats: ["food"],
+      tags: ["chinese", "takeaway", "restaurant"], town: "grantham",
+      address: "47 London Road, Grantham", postcode: "NG31 6EU",
+      lat: 52.908528, lng: -0.638356,
+      fsa: { rating: 5, date: "2025-09-08" }
+    },
+    {
+      id: "glow-sleaford", name: "GLOW Sleaford", cats: ["cafe", "catering"], claimed: true,
+      tags: ["coffee", "coffee shop", "matcha", "smoothies", "acai bowls", "protein shakes", "salads", "bakes", "superfood", "healthy", "catering", "delivery"],
+      town: "sleaford",
+      address: "Kesteven Business Centre, Kesteven Street, Sleaford", postcode: "NG34 7DT",
+      lat: 53.0082741, lng: -0.3950016,
+      phone: "01529 707123",
+      hours: "Monday to Friday, 8am to 4.30pm. Closed Saturday and Sunday.",
+      blurb: "Superfood cafe on the ground floor. Acai bowls, protein shakes, smoothies, coffee and matcha, protein salads and bakes, blended fresh. Walk in, order for delivery across Sleaford, or call for catering.",
+      links: [
+        { label: "Visit website", url: "https://glowsleaford.com" },
+        { label: "Order on Uber Eats", url: "https://www.ubereats.com/gb/store/kesteven-coffee-shop/qY1plYyyXlGdKKZTsrEaZA" },
+        { label: "WhatsApp an order", url: "https://wa.me/441529707123" },
+        { label: "Instagram", url: "https://instagram.com/glowsleaford" }
+      ]
+    },
+    {
+      id: "tag-sleaford", name: "TAG Sleaford, Kesteven Business Centre", cats: ["office", "meeting"], claimed: true,
+      tags: ["serviced offices", "office to let", "meeting room", "day office", "storage", "24 hour access", "business centre"],
+      town: "sleaford",
+      address: "Kesteven Business Centre, Kesteven Street, Sleaford", postcode: "NG34 7DT",
+      lat: 53.0082741, lng: -0.3950016,
+      phone: "01522 424963",
+      blurb: "Serviced offices in Sleaford's old police station: 113 to 964 sq ft, from £250 a month all-inclusive, 24-hour access, 6 to 12 month terms, parking behind. Meeting room for up to 12 at £15 an hour, £50 a half day or £90 a full day, tea and coffee included. Private day office on enquiry.",
+      links: [
+        { label: "View offices", url: "https://centre.tagsleaford.com" },
+        { label: "Book the meeting room", url: "https://centre.tagsleaford.com/meeting-room-sleaford.html" },
+        { label: "TAG Sleaford website", url: "https://tagsleaford.com" }
+      ]
+    }
+  ];
+  // --------------
+
+  var TOWNS = {
+    all:      { name: "All Lincolnshire", lat: 53.05,  lng: -0.35,  zoom: 9 },
+    boston:   { name: "Boston",    lat: 52.976, lng: -0.026, zoom: 13 },
+    grantham: { name: "Grantham",  lat: 52.911, lng: -0.641, zoom: 13 },
+    sleaford: { name: "Sleaford",  lat: 52.998, lng: -0.409, zoom: 13 },
+    lincoln:  { name: "Lincoln",   lat: 53.234, lng: -0.538, zoom: 13 }
+  };
+
+  var CATS = {
+    food:   "Takeaways & restaurants",
+    cafe:     "Coffee shops",
+    catering: "Catering",
+    office:   "Office rental",
+    meeting:  "Meeting space",
+    pub:    "Pubs",
+    hair:   "Hair & beauty",
+    plumb:  "Plumbers & heating",
+    elec:   "Electricians",
+    build:  "Builders & roofers",
+    garage: "Garages & MOT",
+    shop:   "Shops"
+  };
+
+  // Plain-English words mapped to a category (and optionally a tag).
+  var SYN = {
+    food:{cat:"food"}, eat:{cat:"food"}, hungry:{cat:"food"}, dinner:{cat:"food"}, lunch:{cat:"food"},
+    takeaway:{cat:"food"}, takeout:{cat:"food"}, restaurant:{cat:"food"}, meal:{cat:"food"},
+    chinese:{cat:"food",tag:"chinese"}, indian:{cat:"food",tag:"indian"}, curry:{cat:"food",tag:"indian"},
+    pizza:{cat:"food",tag:"pizza"}, kebab:{cat:"food",tag:"kebab"}, chippy:{cat:"food",tag:"fish and chips"},
+    chips:{cat:"food",tag:"fish and chips"}, burger:{cat:"food",tag:"burger"}, thai:{cat:"food",tag:"thai"},
+    italian:{cat:"food",tag:"italian"},
+    cafe:{cat:"cafe"}, coffee:{cat:"cafe"}, breakfast:{cat:"cafe"}, tea:{cat:"cafe"}, cake:{cat:"cafe"},
+    catering:{cat:"catering"}, caterer:{cat:"catering"}, buffet:{cat:"catering"}, platters:{cat:"catering"},
+    office:{cat:"office"}, desk:{cat:"office"}, coworking:{cat:"office"}, workspace:{cat:"office"}, rental:{cat:"office"}, rent:{cat:"office"},
+    meeting:{cat:"meeting"}, boardroom:{cat:"meeting"}, conference:{cat:"meeting"},
+    pub:{cat:"pub"}, pint:{cat:"pub"}, beer:{cat:"pub"}, drink:{cat:"pub"}, bar:{cat:"pub"},
+    haircut:{cat:"hair"}, hair:{cat:"hair"}, barber:{cat:"hair"}, salon:{cat:"hair"}, hairdresser:{cat:"hair"},
+    trim:{cat:"hair"}, nails:{cat:"hair"}, beauty:{cat:"hair"}, cut:{cat:"hair"},
+    plumber:{cat:"plumb"}, plumbing:{cat:"plumb"}, boiler:{cat:"plumb"}, heating:{cat:"plumb"}, leak:{cat:"plumb"},
+    tap:{cat:"plumb"}, radiator:{cat:"plumb"},
+    electrician:{cat:"elec"}, sparky:{cat:"elec"}, wiring:{cat:"elec"}, socket:{cat:"elec"}, electrics:{cat:"elec"},
+    builder:{cat:"build"}, roofer:{cat:"build"}, roof:{cat:"build"}, extension:{cat:"build"}, bricklayer:{cat:"build"},
+    garage:{cat:"garage"}, mechanic:{cat:"garage"}, mot:{cat:"garage"}, tyres:{cat:"garage"}, car:{cat:"garage"},
+    shop:{cat:"shop"}, gift:{cat:"shop"}
+  };
+  var STOP = {};
+  ("i want a an the some need find me looking for near in to get somewhere somebody someone please good best cheap my can you recommend is there any with and or of at nearby around space spaces hire book").split(" ").forEach(function(w){STOP[w]=1;});
+
+  var state = { town: "all", cat: "all", q: "", user: null, activeId: null };
+
+  // ---- map ----
+  var map = L.map("map", { scrollWheelZoom: false }).setView([TOWNS.all.lat, TOWNS.all.lng], TOWNS.all.zoom);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 18,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+  var layer = L.layerGroup().addTo(map);
+  var markers = {};
+  var userMarker = null;
+
+  function pinIcon(on, shift) {
+    return L.divIcon({ className: "", html: '<div class="pin' + (on ? " on" : "") + '"></div>', iconSize: [26, 26], iconAnchor: [13 - (shift || 0), 26] });
+  }
+  var shifts = {};
+
+  // ---- helpers ----
+  function el(tag, attrs, children) {
+    var n = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === "text") n.textContent = attrs[k];
+      else if (k === "class") n.className = attrs[k];
+      else n.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function (c) { n.appendChild(c); });
+    return n;
+  }
+  function miles(a, b) {
+    var R = 3958.8, rad = Math.PI / 180;
+    var dLat = (b.lat - a.lat) * rad, dLng = (b.lng - a.lng) * rad;
+    var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+  }
+  function fmtDate(iso) {
+    var d = new Date(iso + "T00:00:00");
+    return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  }
+  // Listing requests go to the enquiry form on the main page, which emails us.
+  function mailto(kind, extra) {
+    if (kind === "hello") return "mailto:" + CONTACT_EMAIL;
+    var url = "index.html?topic=" + encodeURIComponent(kind);
+    if (extra) url += "&note=" + encodeURIComponent(extra.trim());
+    return url + "#enquire";
+  }
+
+  // ---- search parsing ----
+  function parseQuery(raw) {
+    var text = (raw || "").toLowerCase().replace(/[^a-z0-9\s&']/g, " ");
+    var words = text.split(/\s+/).filter(Boolean);
+    var town = null, tokens = [];
+    words.forEach(function (w) {
+      if (TOWNS[w] && w !== "all") { town = w; return; }
+      if (STOP[w]) return;
+      if (!SYN[w] && w.length > 3 && w.slice(-1) === "s" && SYN[w.slice(0, -1)]) w = w.slice(0, -1);
+      tokens.push(w);
+    });
+    if (tokens.length > 1) tokens = tokens.filter(function (w) { return w !== "shop"; });
+    return { town: town, tokens: tokens };
+  }
+  function matchesTokens(l, tokens) {
+    var hay = (l.name + " " + l.address + " " + l.postcode + " " + l.tags.join(" ")).toLowerCase();
+    return tokens.every(function (t) {
+      var s = SYN[t];
+      if (s) return l.cats.indexOf(s.cat) > -1 && (!s.tag || l.tags.indexOf(s.tag) > -1 || hay.indexOf(s.tag) > -1);
+      return hay.indexOf(t) > -1;
+    });
+  }
+  function tokenCats(tokens) {
+    var out = {};
+    tokens.forEach(function (t) { if (SYN[t]) out[SYN[t].cat] = 1; });
+    return Object.keys(out);
+  }
+
+  // ---- rendering ----
+  function renderChips() {
+    var townBox = document.getElementById("towns");
+    var catBox = document.getElementById("cats");
+    Array.prototype.slice.call(townBox.querySelectorAll(".chip")).forEach(function (n) { n.remove(); });
+    Array.prototype.slice.call(catBox.querySelectorAll(".chip")).forEach(function (n) { n.remove(); });
+
+    Object.keys(TOWNS).forEach(function (k) {
+      var count = LISTINGS.filter(function (l) { return k === "all" || l.town === k; }).length;
+      var b = el("button", { type: "button", class: "chip" + (k !== "all" && count === 0 ? " empty" : ""), "aria-pressed": state.town === k ? "true" : "false" });
+      b.appendChild(document.createTextNode(TOWNS[k].name));
+      if (k !== "all") b.appendChild(el("small", { text: String(count) }));
+      b.addEventListener("click", function () { state.town = k; state.user = null; clearUser(); run(true); });
+      townBox.appendChild(b);
+    });
+
+    var scoped = LISTINGS.filter(function (l) { return state.town === "all" || l.town === state.town; });
+    var all = el("button", { type: "button", class: "chip", "aria-pressed": state.cat === "all" ? "true" : "false" });
+    all.appendChild(document.createTextNode("Everything"));
+    all.addEventListener("click", function () { state.cat = "all"; run(false); });
+    catBox.appendChild(all);
+    Object.keys(CATS).forEach(function (k) {
+      var count = scoped.filter(function (l) { return l.cats.indexOf(k) > -1; }).length;
+      var b = el("button", { type: "button", class: "chip" + (count === 0 ? " empty" : ""), "aria-pressed": state.cat === k ? "true" : "false" });
+      b.appendChild(document.createTextNode(CATS[k]));
+      b.appendChild(el("small", { text: String(count) }));
+      b.addEventListener("click", function () { state.cat = k; run(false); });
+      catBox.appendChild(b);
+    });
+  }
+
+  function currentResults() {
+    var pq = parseQuery(state.q);
+    var town = pq.town || state.town;
+    var cats = tokenCats(pq.tokens);
+    var res = LISTINGS.filter(function (l) {
+      if (town !== "all" && l.town !== town) return false;
+      if (state.cat !== "all" && l.cats.indexOf(state.cat) < 0) return false;
+      return matchesTokens(l, pq.tokens);
+    });
+    if (state.user) {
+      res.forEach(function (l) { l._d = (l.lat == null) ? Infinity : miles(state.user, l); });
+      res.sort(function (a, b) { return a._d - b._d; });
+    }
+    return { list: res, town: town, tokens: pq.tokens, cats: cats };
+  }
+
+  function describe(r) {
+    var what;
+    if (r.tokens.length) what = r.tokens.join(" ");
+    else if (state.cat !== "all") what = CATS[state.cat].toLowerCase();
+    else what = "all listings";
+    var where = r.town === "all" ? "across Lincolnshire" : "in " + TOWNS[r.town].name;
+    return { what: what, where: where };
+  }
+
+  function renderList(r) {
+    var list = document.getElementById("list");
+    var status = document.getElementById("status");
+    list.textContent = "";
+    var d = describe(r);
+    status.textContent = "";
+    var n = r.list.length;
+    status.appendChild(el("strong", { text: n + (n === 1 ? " result" : " results") }));
+    status.appendChild(document.createTextNode(" for " + d.what + " " + d.where + (state.user ? ", nearest first" : "") + "."));
+
+    if (!n) {
+      var wanted = r.tokens.length ? r.tokens.join(" ") : (state.cat !== "all" ? CATS[state.cat].toLowerCase() : "that");
+      var box = el("div", { class: "empty-state" }, [
+        el("h3", { text: "Nobody listed for " + wanted + " " + d.where + " yet" }),
+        el("p", { text: "We're adding local businesses every week. If this is your trade, you can be the first one customers see, and it's free." })
+      ]);
+      var a = el("a", { class: "btn small", href: mailto("list", "Category: " + wanted + "\n") });
+      a.textContent = "List your business free";
+      box.appendChild(a);
+      if (r.town !== "all") {
+        var other = el("p", { style: "margin-top:.9rem;font-size:.93rem" });
+        var link = el("a", { href: "#" });
+        link.textContent = "Search all of Lincolnshire instead";
+        link.addEventListener("click", function (e) { e.preventDefault(); state.town = "all"; state.q = state.q.replace(/\b(boston|grantham|sleaford|lincoln)\b/ig, "").trim(); document.getElementById("q").value = state.q; run(true); });
+        other.appendChild(link);
+        box.appendChild(other);
+      }
+      list.appendChild(box);
+      return;
+    }
+
+    r.list.forEach(function (l) {
+      var card = el("article", { class: "item" + (l.claimed ? " rich" : "") + (state.activeId === l.id ? " active" : ""), "data-id": l.id, tabindex: "0" });
+      card.appendChild(el("h3", { text: l.name }));
+      card.appendChild(el("p", { class: "meta", text: l.cats.map(function (c) { return CATS[c]; }).join(", ") + " · " + TOWNS[l.town].name }));
+      card.appendChild(el("p", { text: l.address ? (l.address + ", " + l.postcode) : "Address to be confirmed by the owner" }));
+      var badges = el("p");
+      if (typeof l._d === "number" && isFinite(l._d) && state.user) badges.appendChild(el("span", { class: "badge dist", text: l._d.toFixed(1) + " miles away" }));
+      if (l.fsa) badges.appendChild(el("span", { class: "badge", text: "Food hygiene " + l.fsa.rating + "/5" }));
+      card.appendChild(badges);
+      if (l.fsa) card.appendChild(el("p", { class: "unclaimed", text: "Rating from the Food Standards Agency, inspected " + fmtDate(l.fsa.date) + "." }));
+      if (l.blurb) card.appendChild(el("p", { text: l.blurb }));
+      if (l.hours) card.appendChild(el("p", { class: "unclaimed", text: "Open: " + l.hours }));
+      if (l.phone) {
+        var ph = el("p");
+        var phLink = el("a", { href: "tel:+44" + l.phone.replace(/\s+/g, "").replace(/^0/, "") });
+        phLink.textContent = l.phone;
+        ph.appendChild(document.createTextNode("Phone: "));
+        ph.appendChild(phLink);
+        card.appendChild(ph);
+      }
+      if (!l.claimed) card.appendChild(el("p", { class: "unclaimed", text: "Unclaimed listing. The owner can add a phone number, hours and menu." }));
+      var acts = el("div", { class: "actions" });
+      (l.links || []).forEach(function (lk, i) {
+        var a = el("a", { class: "btn small" + (i === 0 ? "" : " ghost"), href: lk.url, target: "_blank", rel: "noopener" });
+        a.textContent = lk.label;
+        acts.appendChild(a);
+      });
+      if (l.lat != null) {
+        var dir = el("a", { class: "btn small ghost", href: "https://www.google.com/maps/dir/?api=1&destination=" + l.lat + "," + l.lng, target: "_blank", rel: "noopener" });
+        dir.textContent = "Directions";
+        acts.appendChild(dir);
+      }
+      if (!l.claimed) {
+        var claim = el("a", { class: "btn small", href: mailto("list", "Listing to claim: " + l.name + (l.address ? ", " + l.address : "") + "\n") });
+        claim.textContent = "Claim this listing";
+        acts.appendChild(claim);
+      }
+      card.appendChild(acts);
+      function focusIt() { setActive(l.id, true); }
+      card.addEventListener("click", function (e) { if (e.target.tagName !== "A") focusIt(); });
+      card.addEventListener("keydown", function (e) { if (e.key === "Enter" && e.target === card) focusIt(); });
+      list.appendChild(card);
+    });
+  }
+
+  function renderMap(r, refit) {
+    layer.clearLayers();
+    markers = {};
+    var seen = {};
+    shifts = {};
+    r.list.forEach(function (l) {
+      if (l.lat == null) return;
+      var key = l.lat + "," + l.lng;
+      seen[key] = (seen[key] || 0) + 1;
+      shifts[l.id] = (seen[key] - 1) * 16;
+      var m = L.marker([l.lat, l.lng], { icon: pinIcon(state.activeId === l.id, shifts[l.id]), title: l.name, keyboard: true });
+      m.bindPopup("<strong>" + l.name.replace(/</g, "&lt;") + "</strong><br>" + l.address.replace(/</g, "&lt;"));
+      m.on("click", function () { setActive(l.id, false); });
+      m.addTo(layer);
+      markers[l.id] = m;
+    });
+    if (!refit) return;
+    var pts = r.list.filter(function (l) { return l.lat != null; }).map(function (l) { return [l.lat, l.lng]; });
+    if (state.user) pts.push([state.user.lat, state.user.lng]);
+    if (pts.length > 1) map.fitBounds(pts, { padding: [40, 40], maxZoom: 14 });
+    else if (pts.length === 1) map.setView(pts[0], 14);
+    else { var t = TOWNS[r.town] || TOWNS.all; map.setView([t.lat, t.lng], t.zoom); }
+  }
+
+  function setActive(id, pan) {
+    state.activeId = id;
+    Object.keys(markers).forEach(function (k) { markers[k].setIcon(pinIcon(k === id, shifts[k])); });
+    Array.prototype.slice.call(document.querySelectorAll(".item")).forEach(function (n) {
+      n.classList.toggle("active", n.getAttribute("data-id") === id);
+    });
+    if (pan && markers[id]) { map.setView(markers[id].getLatLng(), 15); markers[id].openPopup(); }
+    if (!pan) {
+      var card = document.querySelector('.item[data-id="' + id + '"]');
+      if (card && card.scrollIntoView) card.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }
+
+  function clearUser() { if (userMarker) { map.removeLayer(userMarker); userMarker = null; } }
+
+  function run(refit) {
+    renderChips();
+    var r = currentResults();
+    renderList(r);
+    renderMap(r, refit);
+  }
+
+  // ---- events ----
+  document.getElementById("searchForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    state.q = document.getElementById("q").value;
+    var pq = parseQuery(state.q);
+    if (pq.town) state.town = pq.town;
+    state.cat = "all";
+    run(true);
+  });
+  Array.prototype.slice.call(document.querySelectorAll("[data-ex]")).forEach(function (b) {
+    b.addEventListener("click", function () {
+      var q = b.getAttribute("data-ex");
+      document.getElementById("q").value = q;
+      state.q = q; state.cat = "all";
+      var pq = parseQuery(q);
+      state.town = pq.town || "all";
+      run(true);
+    });
+  });
+  document.getElementById("nearBtn").addEventListener("click", function () {
+    var status = document.getElementById("status");
+    if (!navigator.geolocation) { status.textContent = "Your browser can't share its location. Choose a town instead."; return; }
+    status.textContent = "Finding your location...";
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      state.user = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      state.town = "all";
+      clearUser();
+      userMarker = L.marker([state.user.lat, state.user.lng], { icon: L.divIcon({ className: "", html: '<div class="me"></div>', iconSize: [16, 16], iconAnchor: [8, 8] }), title: "You are here" }).addTo(map);
+      run(true);
+    }, function () {
+      state.user = null;
+      status.textContent = "We couldn't get your location. Allow location access for this site, or choose a town instead.";
+    }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+  });
+  Array.prototype.slice.call(document.querySelectorAll("[data-mail]")).forEach(function (a) {
+    a.href = mailto(a.getAttribute("data-mail"));
+  });
+  document.getElementById("footer-email").textContent = CONTACT_EMAIL;
+  document.getElementById("yr").textContent = new Date().getFullYear();
+
+  // allow ?q=chinese&town=grantham deep links (handy for outreach)
+  var params = new URLSearchParams(location.search);
+  if (params.get("town") && TOWNS[params.get("town")]) state.town = params.get("town");
+  if (params.get("q")) {
+    state.q = params.get("q");
+    document.getElementById("q").value = state.q;
+    var pq0 = parseQuery(state.q);
+    if (pq0.town) state.town = pq0.town;
+  }
+  run(true);
+})();
+</script>
+</body>
+</html>

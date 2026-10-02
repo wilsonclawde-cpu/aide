@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://aide.tagsleaford.com/sitemap.xml
