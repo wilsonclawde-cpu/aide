@@ -14,8 +14,8 @@
   1. Replace the [BRACKETED] placeholders in the footer, privacy.html and terms.html.
   2. Paste Stripe Payment Link URLs into STRIPE_LINKS in the script at the bottom.
      Until a link is set, the Order buttons take the visitor to the enquiry form.
-  3. Check CONTACT_EMAIL (bottom script) matches the live mailbox. FORM_ENDPOINT is empty,
-     so the form opens the visitor's email app addressed to that mailbox.
+  3. Check CONTACT_EMAIL (bottom script) matches the live mailbox. The form posts to Web3Forms
+     (WEB3FORMS_KEY); if it ever fails the visitor is shown CONTACT_EMAIL and the phone number.
 -->
 <style>
   :root{
@@ -470,7 +470,9 @@
   // Where the form posts. GitHub Pages can't run server code, so until you deploy the small
   // form Worker (aide-form-worker.js) and paste its URL here, the form opens the visitor's email app
   // with their details filled in and addressed to CONTACT_EMAIL.
-  const FORM_ENDPOINT = "";
+  const FORM_ENDPOINT = "https://api.web3forms.com/submit";
+  // Web3Forms access key (public by design). Delivers enquiries to the TAG Sleaford inbox.
+  const WEB3FORMS_KEY = "4011b5b9-4b83-437a-a35d-baac02080912";
 
   // Optional: Cloudflare Turnstile site key (spam protection). Leave "" to skip.
   const TURNSTILE_SITE_KEY = "";
@@ -561,6 +563,12 @@
     };
     var tsField = form.querySelector('[name="cf-turnstile-response"]');
     if (tsField) payload.turnstile = tsField.value;
+    if (FORM_ENDPOINT.indexOf("web3forms.com") > -1) {
+      payload.access_key = WEB3FORMS_KEY;
+      payload.subject = "Aide enquiry: " + f["topic"].options[f["topic"].selectedIndex].text;
+      payload.from_name = payload.name;
+      payload.botcheck = payload.company_site ? true : "";
+    }
 
     if (!FORM_ENDPOINT) {
       // No server available: open the visitor's email app with everything filled in.
@@ -581,10 +589,10 @@
     }
 
     btn.disabled = true; btn.textContent = "Sending...";
-    fetch(FORM_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+    fetch(FORM_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(payload) })
       .then(function (r) { return r.json().catch(function () { return { ok: false }; }).then(function (j) { return { status: r.status, body: j }; }); })
       .then(function (res) {
-        if (res.body && res.body.ok) {
+        if (res.body && (res.body.ok || res.body.success)) {
           form.reset();
           show("ok", "Thanks. We've got your request and will reply by email, usually within one working day.");
         } else {

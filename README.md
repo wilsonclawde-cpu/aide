@@ -10,9 +10,9 @@ Static site for Aide, a trading name of TAG Sleaford Ltd (company number 1287032
 ## Files
 - index.html: home page, price list and enquiry form
 - directory.html: Lincolnshire Directory (listing data is the `LISTINGS` block in its script)
-- privacy.html, terms.html: drafts, need review and the `[DATE]` filled in
+- privacy.html, terms.html: drafts dated 2 October 2026; adviser-review placeholders in square brackets remain
 
 ## Before it goes live
-- Enquiry form: GitHub Pages cannot run server code. Until a form endpoint is set (`FORM_ENDPOINT` near the bottom of index.html), the form opens the visitor's email app addressed to aide@tagsleaford.com.
+- Enquiry form: posts to Web3Forms (key in `WEB3FORMS_KEY`, near the bottom of index.html), delivering to the TAG Sleaford inbox. For a dedicated Aide inbox, create a Web3Forms key for aide@tagsleaford.com and replace the key.
 - Add Stripe Payment Links to `STRIPE_LINKS` in index.html.
 - Confirm addresses for any listing that has none.
