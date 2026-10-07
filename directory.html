@@ -114,6 +114,18 @@
     .logo span{display:none}
   }
   @media (prefers-reduced-motion:reduce){.btn{transition:none}}
+  .ld-banner{padding:.4rem 0 1.8rem}
+  /* LincsDirectory banner (added 2026-10-08) */
+  .ld-card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:1.2rem 2.2rem;align-items:center;background:var(--paper);border:2px solid var(--fen-deep);border-radius:14px;padding:1.5rem 1.6rem}
+  .ld-logo{width:280px;max-width:100%;height:auto}
+  .ld-kicker{display:block;font-size:.82rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--field);margin-bottom:.35rem}
+  .ld-card h2{font-size:clamp(1.35rem,2.4vw,1.7rem);margin:0 0 .4rem}
+  .ld-card p{margin:0;color:var(--muted);font-size:.98rem;max-width:40rem}
+  .ld-actions{display:grid;gap:.5rem;justify-items:start}
+  .ld-actions .btn{text-align:center}
+  .ld-actions .ld-link{display:inline-flex;align-items:center;min-height:44px;padding:0 .2rem;font-weight:500}
+  @media (max-width:1000px){.ld-card{grid-template-columns:1fr auto}.ld-logo{grid-column:1/-1;width:240px}}
+  @media (max-width:620px){.ld-card{grid-template-columns:1fr}.ld-logo{width:220px}.ld-actions{justify-items:stretch}.ld-actions .ld-link{justify-self:start}}
 </style>
 </head>
 <body>
@@ -162,6 +174,23 @@
     </div>
   </section>
 
+  <aside class="ld-banner" aria-label="LincsDirectory">
+    <div class="wrap">
+      <div class="ld-card">
+        <img class="ld-logo" src="lincsdirectory-logo.svg" alt="LincsDirectory" width="356" height="64" loading="lazy" decoding="async">
+        <div>
+          <span class="ld-kicker">Also from TAG Sleaford</span>
+          <h2>Try LincsDirectory, our newer directory for all of Lincolnshire.</h2>
+          <p>Businesses, services and things to do across the county, free to search. Business owners: list free, or go Promoted for &pound;2.49 a month, VAT included.</p>
+        </div>
+        <div class="ld-actions">
+          <a class="btn" href="https://lincsdirectory.co.uk/">Visit LincsDirectory</a>
+          <a class="ld-link" href="https://lincsdirectory.co.uk/pros.html">List your business</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+
   <section>
     <div class="wrap stage">
       <div>
@@ -194,6 +223,7 @@
       <p><a href="index.html">Aide home</a></p>
       <p><a href="privacy.html">Privacy notice</a></p>
       <p><a href="terms.html">Terms of sale</a></p>
+      <p><a href="https://lincsdirectory.co.uk/">LincsDirectory</a></p>
       <p class="sp"></p>
       <p>&copy; <span id="yr">2026</span> TAG Sleaford Ltd</p>
     </div>
